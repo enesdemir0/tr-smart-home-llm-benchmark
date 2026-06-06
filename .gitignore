@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+
+# Results (raw JSONs can be large; keep only summary CSV)
+results/**/checkpoints/
+results/**/__raw.json
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -140,8 +140,9 @@ def run_eval(args):
     # Append to summary CSV
     csv_path = results_dir / "summary.csv"
     fieldnames = ["model", "mode", "prompt", "n_samples",
-                  "valid_json_rate", "accuracy", "precision", "recall", "f1",
-                  "avg_latency_s", "avg_input_tokens", "avg_output_tokens"]
+                  "valid_json_rate", "label_validity_rate",
+                  "accuracy", "precision", "recall", "f1",
+                  "avg_latency_s", "avg_input_tokens", "avg_output_tokens", "avg_total_tokens"]
 
     write_header = not csv_path.exists()
     with open(csv_path, "a", newline="", encoding="utf-8") as f:
