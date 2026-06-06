@@ -5,7 +5,7 @@ Run a loaded model on the test set and collect raw outputs + timing.
 import json
 import time
 import torch
-from src.prompter import build_prompt
+from src.prompter import build_prompt, apply_chat_template_compat
 
 
 def run_inference(
@@ -36,8 +36,9 @@ def run_inference(
     for i, row in enumerate(test_data):
         messages = build_prompt(prompt_type, row["instruction"], few_shot_examples)
 
-        # Apply the model's chat template
-        prompt_text = tokenizer.apply_chat_template(
+        # Apply the model's chat template (handles models without system role)
+        prompt_text = apply_chat_template_compat(
+            tokenizer,
             messages,
             tokenize=False,
             add_generation_prompt=True,

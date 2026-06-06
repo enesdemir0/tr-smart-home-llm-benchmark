@@ -6,7 +6,7 @@ Saves the LoRA adapter to:  results/<model_key>_finetuned/
 
 import json
 from pathlib import Path
-from src.prompter import SYSTEM_PROMPT
+from src.prompter import SYSTEM_PROMPT, apply_chat_template_compat
 
 
 # ── Dataset formatting ────────────────────────────────────────────────────────
@@ -18,8 +18,8 @@ def format_row(row: dict, tokenizer) -> dict:
         {"role": "user",      "content": row["instruction"]},
         {"role": "assistant", "content": row["response"]},
     ]
-    text = tokenizer.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=False
+    text = apply_chat_template_compat(
+        tokenizer, messages, tokenize=False, add_generation_prompt=False
     )
     return {"text": text}
 
@@ -111,7 +111,7 @@ def fine_tune(
         logging_steps=20,
         save_strategy="epoch",
         optim="paged_adamw_8bit",
-        warmup_ratio=0.05,
+        warmup_steps=50,
         lr_scheduler_type="cosine",
         report_to="none",
     )
@@ -119,7 +119,7 @@ def fine_tune(
     # ── Trainer ───────────────────────────────────────────────────────────────
     trainer = SFTTrainer(
         model=model,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         train_dataset=dataset,
         dataset_text_field="text",
         max_seq_length=max_seq_length,

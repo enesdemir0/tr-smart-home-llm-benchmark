@@ -70,10 +70,10 @@ def load_model_and_tokenizer(
     elif mode == "finetune":
         from peft import PeftModel
         adapter_path = Path(results_dir) / f"{model_key}_finetuned"
-        if not adapter_path.exists():
+        if not (adapter_path / "adapter_config.json").exists():
             raise FileNotFoundError(
-                f"Fine-tuned adapter not found at {adapter_path}. "
-                "Run with --mode finetune first to train."
+                f"No adapter_config.json found at {adapter_path}. "
+                "Fine-tuning may have failed — run --action train first."
             )
         print(f"Loading base model: {base_id}")
         base_model = AutoModelForCausalLM.from_pretrained(
@@ -83,7 +83,7 @@ def load_model_and_tokenizer(
             trust_remote_code=True,
         )
         print(f"Loading LoRA adapter from: {adapter_path}")
-        model = PeftModel.from_pretrained(base_model, str(adapter_path))
+        model = PeftModel.from_pretrained(base_model, str(adapter_path.resolve()))
 
     else:
         raise ValueError(f"Unknown mode: {mode!r}. Choose: base | finetune")

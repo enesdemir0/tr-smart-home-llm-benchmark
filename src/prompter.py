@@ -76,6 +76,27 @@ def build_cot(instruction: str) -> list[dict]:
     ]
 
 
+# ── Chat template compatibility helper ───────────────────────────────────────
+
+def apply_chat_template_compat(tokenizer, messages: list[dict], **kwargs) -> str:
+    """Apply chat template, falling back to merging system→user for models like Gemma 2."""
+    try:
+        return tokenizer.apply_chat_template(messages, **kwargs)
+    except Exception as e:
+        if "System role not supported" not in str(e):
+            raise
+        # Merge system content into the first user message
+        merged, sys_content = [], ""
+        for msg in messages:
+            if msg["role"] == "system":
+                sys_content = msg["content"]
+            else:
+                merged.append(dict(msg))
+        if sys_content and merged and merged[0]["role"] == "user":
+            merged[0]["content"] = sys_content + "\n\n" + merged[0]["content"]
+        return tokenizer.apply_chat_template(merged, **kwargs)
+
+
 # ── Dispatcher ────────────────────────────────────────────────────────────────
 
 def build_prompt(
