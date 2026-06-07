@@ -114,6 +114,7 @@ def fine_tune(
         warmup_steps=50,
         lr_scheduler_type="cosine",
         report_to="none",
+        gradient_checkpointing=True,
         dataset_text_field="text",
     )
 
