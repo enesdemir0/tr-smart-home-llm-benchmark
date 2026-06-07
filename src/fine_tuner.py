@@ -114,7 +114,6 @@ def fine_tune(
         warmup_steps=50,
         lr_scheduler_type="cosine",
         report_to="none",
-        max_seq_length=max_seq_length,
         dataset_text_field="text",
     )
 
