@@ -48,9 +48,9 @@ def fine_tune(
         load_in_4bit : 4-bit QLoRA (recommended on Colab)
     """
     import torch
-    from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, TrainingArguments
+    from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
     from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-    from trl import SFTTrainer
+    from trl import SFTTrainer, SFTConfig
     from datasets import Dataset
 
     from src.model_loader import get_model_id
@@ -99,8 +99,8 @@ def fine_tune(
     formatted = [format_row(row, tokenizer) for row in train_data]
     dataset = Dataset.from_list(formatted)
 
-    # ── Training args ─────────────────────────────────────────────────────────
-    training_args = TrainingArguments(
+    # ── Training args (SFTConfig absorbs SFT-specific params in TRL >=0.9) ────
+    training_args = SFTConfig(
         output_dir=str(output_dir / "checkpoints"),
         num_train_epochs=num_epochs,
         per_device_train_batch_size=batch_size,
@@ -114,6 +114,8 @@ def fine_tune(
         warmup_steps=50,
         lr_scheduler_type="cosine",
         report_to="none",
+        max_seq_length=max_seq_length,
+        dataset_text_field="text",
     )
 
     # ── Trainer ───────────────────────────────────────────────────────────────
@@ -121,8 +123,6 @@ def fine_tune(
         model=model,
         processing_class=tokenizer,
         train_dataset=dataset,
-        dataset_text_field="text",
-        max_seq_length=max_seq_length,
         args=training_args,
     )
 
